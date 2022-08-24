@@ -172,7 +172,8 @@ def generate_video(source, outname, settings):
 
 
 def generate_thumbnail(
-    source, outname, box, delay, fit=True, options=None, converter="ffmpeg"
+    source, outname, box, delay, fit=True, options=None, converter="ffmpeg",
+    overlay=None
 ):
     """Create a thumbnail image for the video source, based on ffmpeg."""
     logger = logging.getLogger(__name__)
@@ -194,8 +195,18 @@ def generate_thumbnail(
         logger.debug("Retry to create thumbnail for video: %s", " ".join(cmd))
         check_subprocess(cmd, source, outname)
 
+    if overlay:
+        from PIL import Image
+        from sigal.plugins.watermark import watermark
+        from pilkit.utils import save_image
+        tmpi = Image.open(tmpfile)
+        mark = Image.open(overlay)
+        img = watermark(tmpi, mark, "scale", 0.3)
+        save_image(img, tmpfile, 'jpeg')
+
     # use the generate_thumbnail function from sigal.image
     image.generate_thumbnail(tmpfile, outname, box, fit=fit, options=options)
+
     # remove the image
     os.unlink(tmpfile)
 
@@ -228,6 +239,7 @@ def process_video(media):
                 fit=settings["thumb_fit"],
                 options=settings["jpg_options"],
                 converter=settings["video_converter"],
+                overlay=settings["thumb_video_overlay"],
             )
 
     return status.value
