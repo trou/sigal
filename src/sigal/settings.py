@@ -76,6 +76,7 @@ _DEFAULT_CONFIG = {
     'thumb_size': (200, 150),
     'thumb_suffix': '',
     'thumb_video_delay': '0',
+    'thumb_video_overlay': None,
     'title': '',
     'use_orig': False,
     'user_css': None,
