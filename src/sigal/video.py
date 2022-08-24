@@ -184,6 +184,7 @@ def generate_thumbnail(
     black_retries=0,
     black_offset=1,
     black_max_colors=4,
+    overlay=None
 ):
     """Create a thumbnail image for the video source, based on ffmpeg."""
     logger = logging.getLogger(__name__)
@@ -222,8 +223,18 @@ def generate_thumbnail(
         logger.debug("Retry to create thumbnail for video: %s", " ".join(cmd))
         check_subprocess(cmd, source, outname)
 
+    if overlay:
+        from PIL import Image
+        from sigal.plugins.watermark import watermark
+        from pilkit.utils import save_image
+        tmpi = Image.open(tmpfile)
+        mark = Image.open(overlay)
+        img = watermark(tmpi, mark, "scale", 0.3)
+        save_image(img, tmpfile, 'jpeg')
+
     # use the generate_thumbnail function from sigal.image
     image.generate_thumbnail(tmpfile, outname, box, fit=fit, options=options)
+
     # remove the image
     os.unlink(tmpfile)
 
@@ -259,6 +270,7 @@ def process_video(media):
                 black_retries=settings["thumb_video_black_retries"],
                 black_offset=settings["thumb_video_black_retry_offset"],
                 black_max_colors=settings["thumb_video_black_max_colors"],
+                overlay=settings["thumb_video_overlay"],
             )
 
     return status.value
