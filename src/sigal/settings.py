@@ -76,6 +76,7 @@ _DEFAULT_CONFIG = {
     "thumb_size": (200, 150),
     "thumb_suffix": "",
     "thumb_video_delay": 0,
+    'thumb_video_overlay': None,
     "thumb_video_black_retries": 0,
     "thumb_video_black_retry_offset": 1,
     "thumb_video_black_max_colors": 4,
