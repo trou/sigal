@@ -50,6 +50,14 @@ from . import signals, utils
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
+try:
+    from pillow_heif import HeifImagePlugin
+except ImportError:
+    HeifImagePlugin = None
+
+
+
+
 def _has_exif_tags(img):
     return hasattr(img, "info") and "exif" in img.info
 
