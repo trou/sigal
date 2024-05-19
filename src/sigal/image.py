@@ -186,6 +186,8 @@ def process_image(media):
 
     if media.src_ext in (".jpg", ".jpeg", ".JPG", ".JPEG"):
         options = media.settings["jpg_options"]
+    if media.src_ext in (".webp"):
+        options = media.settings["webp_options"]
     elif media.src_ext == ".png":
         options = {"optimize": True}
     else:
