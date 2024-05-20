@@ -264,8 +264,7 @@ class Image(Media):
         datetime_format = self.settings["datetime_format"]
         return (
             get_exif_tags(self.raw_exif, datetime_format=datetime_format)
-            if self.raw_exif and self.src_ext in (".jpg", ".jpeg", '.webp', '.heic')
-            else None
+            if self.raw_exif else None
         )
 
     @cached_property
@@ -289,8 +288,7 @@ class Image(Media):
     @cached_property
     def raw_exif(self):
         """If not `None`, contains the raw EXIF tags."""
-        if self.src_ext in (".jpg", ".jpeg", ".heic", ".webp"):
-            return self.file_metadata["exif"]
+        return self.file_metadata["exif"]
 
     @cached_property
     def size(self):
