@@ -301,8 +301,7 @@ def get_image_metadata(filename):
         logger.error("Could not open image %s metadata: %s", filename, e)
     else:
         try:
-            if os.path.splitext(filename)[1].lower() in (".jpg", ".jpeg", ".webp", ".heic"):
-                exif = get_exif_data(img)
+            exif = get_exif_data(img)
         except Exception as e:
             logger.warning("Could not read EXIF data from %s: %s", filename, e)
 
