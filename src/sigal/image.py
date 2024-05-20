@@ -39,7 +39,7 @@ from datetime import datetime
 import pilkit.processors
 from PIL import Image as PILImage
 from PIL import ImageFile, ImageOps, IptcImagePlugin
-from PIL.ExifTags import GPSTAGS, TAGS
+from PIL.ExifTags import GPSTAGS, TAGS, IFD
 from PIL.TiffImagePlugin import IFDRational
 from pilkit.processors import Transpose
 from pilkit.utils import save_image
@@ -51,12 +51,10 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 try:
-    from pillow_heif import HeifImagePlugin
+    from pillow_heif import register_heif_opener
+    register_heif_opener()
 except ImportError:
     HeifImagePlugin = None
-
-
-
 
 def _has_exif_tags(img):
     return hasattr(img, "info") and "exif" in img.info
@@ -228,7 +226,8 @@ def get_exif_data(filename):
 
     try:
         with warnings.catch_warnings(record=True) as caught_warnings:
-            exif = img._getexif() or {}
+            exif = img.getexif() or {}
+            ifd = img.getexif().get_ifd(IFD.Exif)
     except ZeroDivisionError:
         logger.warning("Failed to read EXIF data.")
         return None
@@ -240,6 +239,8 @@ def get_exif_data(filename):
         )
 
     data = {TAGS.get(tag, tag): value for tag, value in exif.items()}
+    for tag, value in ifd.items():
+        data[TAGS.get(tag, tag)] = value
 
     if "GPSInfo" in data:
         try:
@@ -298,7 +299,7 @@ def get_image_metadata(filename):
         logger.error("Could not open image %s metadata: %s", filename, e)
     else:
         try:
-            if os.path.splitext(filename)[1].lower() in (".jpg", ".jpeg"):
+            if os.path.splitext(filename)[1].lower() in (".jpg", ".jpeg", ".webp", ".heic"):
                 exif = get_exif_data(img)
         except Exception as e:
             logger.warning("Could not read EXIF data from %s: %s", filename, e)
